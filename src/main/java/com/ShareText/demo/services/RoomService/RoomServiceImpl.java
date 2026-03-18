@@ -6,6 +6,8 @@ import com.ShareText.demo.enums.Expiry;
 import com.ShareText.demo.models.Room;
 import com.ShareText.demo.repository.RoomRepository;
 import lombok.Builder;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.scheduling.annotation.Schedules;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
@@ -54,6 +56,8 @@ public class RoomServiceImpl implements RoomService {
                 return now.plusHours(1);
             case ONE_DAY:
                 return now.plusDays(1);
+            case TWO_DAYS:
+                return now.plusDays(2);
             case ONE_WEEK:
                 return now.plusWeeks(1);
             case ONE_MONTH:
@@ -77,7 +81,14 @@ public class RoomServiceImpl implements RoomService {
 
     @Override
     public Room getById(String roomCode){
-        return this.roomRepository.findByRoomCode(roomCode).orElse(null);
+        return this.roomRepository.findActiveRoom(roomCode, LocalDateTime.now()).orElse(null);
+    }
+
+
+    @Override
+    @Scheduled(fixedRate = 36000)
+    public void deleteExpiredRooms(){
+        this.roomRepository.deleteByExpiresAtBefore(LocalDateTime.now());
     }
 
 }
