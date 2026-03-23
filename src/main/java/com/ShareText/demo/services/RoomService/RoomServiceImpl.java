@@ -5,7 +5,9 @@ import com.ShareText.demo.dto.CreateRoomRequest;
 import com.ShareText.demo.enums.Expiry;
 import com.ShareText.demo.models.Room;
 import com.ShareText.demo.repository.RoomRepository;
+import jakarta.transaction.Transactional;
 import lombok.Builder;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.scheduling.annotation.Schedules;
 import org.springframework.stereotype.Service;
@@ -24,6 +26,7 @@ public class RoomServiceImpl implements RoomService {
     public RoomServiceImpl(RoomRepository roomRepository){
         this.roomRepository = roomRepository;
     }
+
 
     @Override
     public String createRoom(CreateRoomRequest request) {
@@ -86,9 +89,21 @@ public class RoomServiceImpl implements RoomService {
 
 
     @Override
-    @Scheduled(fixedRate = 36000)
+    @Transactional
+    @Scheduled(cron = "0 0 0 */2 * *")
     public void deleteExpiredRooms(){
         this.roomRepository.deleteByExpiresAtBefore(LocalDateTime.now());
+    }
+
+
+    @Override
+    public void updateContentInRoom(String roomCode, String content){
+        Room room = this.roomRepository.findByRoomCode(roomCode).orElse(null);
+
+        if(room != null && !room.getContent().equals(content)){
+            this.roomRepository.updateRoomContent(roomCode, content, LocalDateTime.now());
+        }
+
     }
 
 }

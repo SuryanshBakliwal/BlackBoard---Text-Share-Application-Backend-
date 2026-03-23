@@ -17,7 +17,6 @@ public class WebSocketConfig implements WebSocketConfigurer {
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        System.out.println("Helooo");
         registry.addHandler(socketHandler, "/ws/room").setAllowedOrigins("*");
     }
 }

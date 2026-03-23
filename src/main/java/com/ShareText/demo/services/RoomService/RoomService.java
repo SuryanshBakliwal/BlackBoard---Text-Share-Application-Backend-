@@ -11,4 +11,6 @@ public interface RoomService {
     String createRoom(CreateRoomRequest createRoomRequest);
     Room getById(String roomCode);
     void deleteExpiredRooms();
+
+    void updateContentInRoom(String room, String content);
 }
